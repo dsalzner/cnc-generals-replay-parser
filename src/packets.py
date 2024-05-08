@@ -48,6 +48,56 @@ formatHeader = [
   ("nextPacketType", "I", 4), # e.g. 1092 (see below)
 ]
 
+formatLiveReplayHeader = [
+  ("game", "c", 6),   # GENREP
+
+  ("unknown", "HEX", 7),
+
+  ("numTimecodes", "h", 2),
+  ("name", "c", 0),             # Last Replay
+  ("buildVersion", "c", 0),     # Version 1.7
+  ("buildDate", "c", 0),
+
+  ("unknown", "HEX", 2),
+
+  ("version_major", "B", 1),
+  ("unknown_0", "B", 1),
+  ("version_minor", "B", 1),
+
+  ("unknown", "HEX", 8),
+
+  ("configuration", "c", 0),
+  ("build_date", "c", 0),
+
+  ("unknown", "HEX", 2),
+
+  ("unknown", "I", 4), # TODO: number of fields may vary depending on selected map (!)
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+  ("unknown", "I", 4),
+
+  ("unknown", "I", 4),
+
+  ("nextPacketTime", "I", 4),
+  ("nextPacketType", "I", 4), # e.g. 1092 (see below)
+]
+
+
 format1097 = [
   ("packetTime", "I", 4),
   ("packetType", "I", 4),
@@ -146,7 +196,8 @@ format1049 = [
 
   ("unknown", "HEX", 11),
 
-  ("buildingType", "H", 2),
+  ("buildingType", "h", 2),
+  #("unknown", "B", 1),
 
   ("unknown", "HEX", 2),
 
@@ -464,6 +515,7 @@ formats = {
   "1072" : (format1072, "guard"),
 }
 
+"""
 buildingTypeMap = defaultdict(lambda: "unknown", {
   # China Tank General
   "1994" : "Nuclear Reactor",
@@ -494,49 +546,26 @@ buildingTypeMap = defaultdict(lambda: "unknown", {
   "1261" : "Gla Barracks",
   "1256" : "Gla Supply Stash"
 })
+"""
 
-unitTypeMap = defaultdict(lambda: "unknown", {
-  "183" : "China Tank Red Guard",
-  "251" : "Usa Laser General Ranger",
-  "197" : "China Construction Dozer",
-  "185" : "China Tank Hunter",
-  "125" : "Gla Rpg Trooper",
-  "123" : "Gla Rebel",
-  "136" : "Gla Worker",
-  "127" : "Gla Terrorist",
-  "196" : "Supply Truck",
-  "188" : "Battlemaster Tank",
-  "194" : "Troop Crawler",
-  "195" : "Gattling Tank",
-  "193" : "Dragon Tank",
-  "199" : "Listening Outpost",
+buildingTypeMap = defaultdict(lambda: "unknown", {
+  "1264" : "China Barracks",
+  "1280" : "China Bunker",
 })
 
-formatLiveReplayHeader = [
-  ("game", "c", 6),   # GENREP
+unitTypeMap = defaultdict(lambda: "unknown", {
+   "6" : "China Red Guard",
+   "8" : "China Tank Hunter",
+   "29" : "China Construction Dozer",
+})
 
-  ("unknown", "HEX", 7),
+unitBuildTimeMap = defaultdict(lambda: 1, {
+   "6" : 19,
+   "8": 9,
+   "29": 12,
+})
 
-  ("numTimecodes", "h", 2),
-  ("name", "c", 0),             # Last Replay
-  ("buildVersion", "c", 0),     # Version 1.7
-  ("buildDate", "c", 0),
-
-  ("unknown", "HEX", 2),
-
-  ("version_major", "B", 1),
-  ("unknown_0", "B", 1),
-  ("version_minor", "B", 1),
-
-  ("unknown", "HEX", 8),
-
-  ("configuration", "c", 0),
-  ("build_date", "c", 0),
-
-  ("unknown", "HEX", 156),
-
-  ("unknown", "HEX", 4),
-
-  ("nextPacketTime", "I", 4),
-  ("nextPacketType", "I", 4), # e.g. 1092 (see below)
-]
+buildingBuildTimeMap = defaultdict(lambda: 1, {
+    "1264": 21,
+    "1280": 12,
+})

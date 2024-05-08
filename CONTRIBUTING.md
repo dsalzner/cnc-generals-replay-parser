@@ -6,22 +6,22 @@ git clone git@github.com:<your-username>/cnc-generals-replay-parser.git
 
 ## Live mode
 
-Start the game and in Powershell, run:
+Start the game and in git bash, run:
 
 ```
 cd src/
-python3 main.py
+python main.py
 ```
 
 ## File mode
 
-Start the game and in Powershell, run:
+Optionally change filename in ```main_file.py```
 
-Change filename in ```main_file.py```
+then in git bash, run:
 
 ```
 cd src/
-python3 main_file.py
+python main_file.py
 ```
 
 ## Add your changes

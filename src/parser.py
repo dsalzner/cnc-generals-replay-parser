@@ -92,10 +92,11 @@ def parseFromFormat(f, formatData):
 
 type1092_lastValue = defaultdict(lambda: 0.0)
 
-def parse_packet(f, packet_format):
-  log = []
+def parse_packet(f, packet_format, cb_packet):
+  logs = []
   packetTime = 0
   packetType = "0"
+  entries = []
 
   for (file_pos, fieldName, fieldType, fieldLength, value) in parseFromFormat(f, packet_format):
     formatName = ""
@@ -122,9 +123,14 @@ def parse_packet(f, packet_format):
             print("camera_position " + Fore.YELLOW + f"{fieldName} = {value}" + Style.RESET_ALL)
             type1092_lastValue[fieldName] = float(value)
       
-    log += [f"{packetTime}; {file_pos}; {fieldName}; {fieldType}; {fieldLength}; {value}; {formatName}; {extraInfo}"]
+    logs += [f"{packetTime}; {file_pos}; {fieldName}; {fieldType}; {fieldLength}; {value}; {formatName}; {extraInfo}"]
+    entries += [(packetTime, file_pos, fieldName, fieldType, fieldLength, value, formatName, extraInfo)]
+
+  if not cb_packet is None:
+    cb_packet(entries)
+
   f.seek(f.tell() - 8)
-  return (value, log, packetTime)
+  return (value, logs, packetTime)
 
 def repetitionsOf1092(f):
   count = 0
@@ -138,7 +144,7 @@ def repetitionsOf1092(f):
     count += 1
   print(f"> {count} repetitions of 1092, ending with {nextPacketType}")
 
-def parse(f, untilGameTimestamp=0, isLive=False, nextPacketType=0):
+def parse(f, untilGameTimestamp=0, isLive=False, nextPacketType=0, cb_packet=None):
   lastPacketType = 0
   lastPacketPos = 0
 
@@ -148,9 +154,9 @@ def parse(f, untilGameTimestamp=0, isLive=False, nextPacketType=0):
   if nextPacketType == 0:
       print(f"> header")
       if isLive:
-        nextPacketType,log,packetTime = parse_packet(f, packets.formatLiveReplayHeader)
+        nextPacketType,log,packetTime = parse_packet(f, packets.formatLiveReplayHeader, cb_packet)
       else:
-        nextPacketType,log,packetTime = parse_packet(f, packets.formatHeader)
+        nextPacketType,log,packetTime = parse_packet(f, packets.formatHeader, cb_packet)
       print("\n".join(log))
       print(f"{log[-1]}")
   while f.tell() < os.fstat(f.fileno()).st_size - 4:
@@ -160,7 +166,7 @@ def parse(f, untilGameTimestamp=0, isLive=False, nextPacketType=0):
         try:
             lastPacketType = nextPacketType
             lastPacketPos = f.tell()
-            nextPacketType, log, packetTime = parse_packet(f, formatList)
+            nextPacketType, log, packetTime = parse_packet(f, formatList, cb_packet)
         except Exception as e:
             print(f"parse failed {e}")
             return (lastPacketType,lastPacketPos)

@@ -21,28 +21,45 @@ from parser import *
 import time
 import sys
 import os
-import pwd
 
 def get_username():
-  return pwd.getpwuid(os.getuid())[0]
+  return os.environ.get('USER', os.environ.get('USERNAME'))
 
 replay_file = r"C:\Users\<username>\Documents\Command and Conquer Generals Zero Hour Data\Replays\00000000.rep"
 replay_file = replay_file.replace("<username>", get_username())
 is_live_replay = True
 
+def getValueByFieldNameFromEntries(entries, sFieldName):
+    for (packetTime, file_pos, fieldName, fieldType, fieldLength, value, formatName, extraInfo) in entries:
+        if fieldName == sFieldName:
+            return value
+
+def cb_packet(entries):
+    isCreateUnit = False
+
+    if getValueByFieldNameFromEntries(entries, "packetType") == "1047": # create_unit
+        print("!!!! CREATE UNIT\n\n\n")
+    else:
+        return
+
+    if getValueByFieldNameFromEntries(entries,"unitType") == "6": # China Tank Red Guard
+        print("CHINA TANK")
+        print("unitNoFromSameBuilding " + str(getValueByFieldNameFromEntries(entries, "unitNoFromSameBuilding")))
+
+
 with open(replay_file, "rb") as f:
     print(f"=== {os.path.basename(replay_file)} ===")
-    (lastPacketType, lastPacketPos) = parse(f, 0, is_live_replay, 0)
+    (lastPacketType, lastPacketPos) = parse(f, 0, is_live_replay, 0, cb_packet)
     print("---")
     while(True):
         print(f"=== {os.path.basename(replay_file)} ===")
         if not lastPacketType == 0:
             f.seek(lastPacketPos)
 
-            (packetType, packetPos) = parse(f, 0, is_live_replay, lastPacketType)
-            if packetType != 0:
-                lastPacketType = packetType
-                lastPacketPos = packetPos
+        (packetType, packetPos) = parse(f, 0, is_live_replay, lastPacketType, cb_packet)
+        if packetType != 0:
+            lastPacketType = packetType
+            lastPacketPos = packetPos
 
         print(f"--- {lastPacketType} {packetPos}", flush=True)
 
